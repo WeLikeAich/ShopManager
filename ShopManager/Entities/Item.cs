@@ -23,8 +23,8 @@ namespace ShopManager.Entities
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine($"\tName: {Name}\n\tDescription: {Description}");
-            foreach (var item in SizeOptions)
-                sb.AppendLine($"\t\t{item}");
+            foreach (var sizeOption in SizeOptions)
+                sb.AppendLine($"\t\t{sizeOption}");
 
             return sb.ToString(); ;
         }

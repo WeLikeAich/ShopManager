@@ -27,6 +27,7 @@ namespace ShopManager.Services
             return _db.Items.Include(i => i.SizeOptions)
                                  .ThenInclude(so => so.MaterialCounts)
                                  .ThenInclude(mc => mc.Material)
+                                 .ThenInclude(m => m.Colors)
                                  .ToList();
         }
 

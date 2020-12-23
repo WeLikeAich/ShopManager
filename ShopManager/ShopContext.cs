@@ -31,7 +31,7 @@ namespace ShopManager
             modelBuilder.Entity<MaterialCount>()
                 .HasOne(mc => mc.Material)
                 .WithMany()
-                .HasForeignKey(mc => mc.MaterialId); ;
+                .HasForeignKey(mc => mc.MaterialId);
 
             modelBuilder.Entity<Material>()
                 .HasAlternateKey(m => m.FriendlyName)

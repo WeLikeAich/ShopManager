@@ -22,7 +22,7 @@ namespace ShopManager.Clients
                         break;
 
                     case 2:
-                        ListMaterials();
+                        CommonClientFunctions.ListMaterials();
                         break;
 
                     case 3:
@@ -86,17 +86,11 @@ namespace ShopManager.Clients
             }
         }
 
-        private List<Material> ReadMaterials()
-        {
-            using var db = new ShopContext();
-            return new DataService(db).GetMaterials();
-        }
-
         private void UpdateMaterials()
         {
             Console.WriteLine("Pick an Item to Edit");
-            var materials = ReadMaterials();
-            PrintMaterials(materials);
+            var materials = CommonClientFunctions.ReadMaterials();
+            CommonClientFunctions.PrintMaterials(materials);
             Int32.TryParse(Console.ReadLine(), out int input);
 
             Material material = materials[input - 1];
@@ -162,8 +156,8 @@ namespace ShopManager.Clients
         private void DeleteMaterial()
         {
             Console.WriteLine("Pick an Item to Delete");
-            var materials = ReadMaterials();
-            PrintMaterials(materials);
+            var materials = CommonClientFunctions.ReadMaterials();
+            CommonClientFunctions.PrintMaterials(materials);
             Int32.TryParse(Console.ReadLine(), out int input);
 
             using (var db = new ShopContext())
@@ -241,19 +235,6 @@ namespace ShopManager.Clients
                 ColorCode = newColorCode,
                 Cost = cost,
             };
-        }
-
-        private void PrintMaterials(List<Material> materials)
-        {
-            for (int i = 1; i <= materials.Count; i++)
-            {
-                Console.WriteLine($"{i}) {materials[i - 1]}");
-            }
-        }
-
-        private void ListMaterials()
-        {
-            PrintMaterials(ReadMaterials());
         }
     }
 }

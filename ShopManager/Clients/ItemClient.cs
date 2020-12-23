@@ -22,7 +22,7 @@ namespace ShopManager.Clients
                         break;
 
                     case 2:
-                        ListItems();
+                        CommonClientFunctions.ListItems();
                         break;
 
                     case 3:
@@ -85,16 +85,11 @@ namespace ShopManager.Clients
             }
         }
 
-        private void ListItems()
-        {
-            PrintItems(ReadItems());
-        }
-
         private void UpdateItem()
         {
             Console.WriteLine("Pick an Item to Edit");
-            var items = ReadItems();
-            PrintItems(items);
+            var items = CommonClientFunctions.ReadItems();
+            CommonClientFunctions.PrintItems(items);
             Int32.TryParse(Console.ReadLine(), out int input);
 
             var item = items[input - 1];
@@ -154,13 +149,8 @@ namespace ShopManager.Clients
 
         public void EditSizeOption(Item item)
         {
-            int i = 0;
             var options = item.SizeOptions;
-            foreach (var sizeOption in options)
-            {
-                Console.WriteLine($"\t{i + 1}) {sizeOption}");
-                i++;
-            }
+            CommonClientFunctions.PrintSizeOption(options);
 
             Int32.TryParse(Console.ReadLine(), out int input);
             input -= 1;
@@ -223,7 +213,7 @@ namespace ShopManager.Clients
 
         private void CreateMaterialCount(SizeOption option)
         {
-            List<Material> materials = ReadMaterials();
+            List<Material> materials = CommonClientFunctions.ReadMaterials();
 
             var materialCount = CreateMaterialCount(materials);
             materialCount.SizeOptionId = option.Id;
@@ -234,13 +224,8 @@ namespace ShopManager.Clients
 
         private void EditMaterialCount(SizeOption option)
         {
-            int i = 0;
             var materialCounts = option.MaterialCounts;
-            foreach (var mc in materialCounts)
-            {
-                Console.WriteLine($"\t{i + 1}) {mc}");
-                i++;
-            }
+            CommonClientFunctions.PrintMaterialCounts(materialCounts);
 
             Int32.TryParse(Console.ReadLine(), out int input);
             input -= 1;
@@ -263,11 +248,7 @@ namespace ShopManager.Clients
 
         private void DeleteMaterialCount(List<MaterialCount> materialCounts)
         {
-            for (int i = 0; i < materialCounts.Count; i++)
-            {
-                Console.WriteLine($"\t{i + 1}){materialCounts[i]}");
-                i++;
-            }
+            CommonClientFunctions.PrintMaterialCounts(materialCounts);
             Console.WriteLine($"\t{0}) Cancel");
 
             Int32.TryParse(Console.ReadLine(), out int input);
@@ -282,10 +263,7 @@ namespace ShopManager.Clients
 
         private void DeleteSizeOption(List<SizeOption> sizeOptions)
         {
-            for (int i = 0; i < sizeOptions.Count; i++)
-            {
-                Console.WriteLine($"\t{i + 1}){sizeOptions[i]}");
-            }
+            CommonClientFunctions.PrintSizeOption(sizeOptions);
             Console.WriteLine($"\t{0}) Cancel");
 
             Int32.TryParse(Console.ReadLine(), out int input);
@@ -301,8 +279,8 @@ namespace ShopManager.Clients
         private void DeleteItem()
         {
             Console.WriteLine("Pick an Item to Delete");
-            var items = ReadItems();
-            PrintItems(items);
+            var items = CommonClientFunctions.ReadItems();
+            CommonClientFunctions.PrintItems(items);
             Int32.TryParse(Console.ReadLine(), out int input);
 
             using (var db = new ShopContext())
@@ -323,7 +301,7 @@ namespace ShopManager.Clients
             Int32.TryParse(Console.ReadLine(), out int time);
 
             List<MaterialCount> materialCounts = new List<MaterialCount>();
-            List<Material> materials = ReadMaterials();
+            List<Material> materials = CommonClientFunctions.ReadMaterials();
             do
             {
                 materialCounts.Add(CreateMaterialCount(materials));
@@ -347,7 +325,7 @@ namespace ShopManager.Clients
         private MaterialCount CreateMaterialCount(List<Material> materials)
         {
             Console.WriteLine("Pick a material> ");
-            PrintMaterials(materials);
+            CommonClientFunctions.PrintMaterials(materials);
             Int32.TryParse(Console.ReadLine(), out int input);
 
             Material material = materials[input - 1];
@@ -359,34 +337,6 @@ namespace ShopManager.Clients
                 MaterialId = material.Id,
                 MaterialUnitCount = newUnitCount
             };
-        }
-
-        private void PrintMaterials(List<Material> materials)
-        {
-            for (int i = 1; i <= materials.Count; i++)
-            {
-                Console.WriteLine($"{i}) {materials[i - 1]}");
-            }
-        }
-
-        private List<Material> ReadMaterials()
-        {
-            using var db = new ShopContext();
-            return new DataService(db).GetMaterials();
-        }
-
-        private void PrintItems(List<Item> items)
-        {
-            for (int i = 1; i <= items.Count; i++)
-            {
-                Console.WriteLine($"{i}) {items[i - 1]}");
-            }
-        }
-
-        private List<Item> ReadItems()
-        {
-            using var db = new ShopContext();
-            return new DataService(db).GetItems();
         }
     }
 }

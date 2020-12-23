@@ -5,6 +5,8 @@ using ShopManager.Entities;
 using ShopManager.Services;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 
 namespace ShopManager
 {
@@ -12,10 +14,7 @@ namespace ShopManager
     {
         private static void Main(string[] args)
         {
-            using (var db = new ShopContext())
-            {
-                PreCheck(db.Database);
-            }
+            PreCheck();
 
             Console.WriteLine("Welcome to Shop Manager");
             bool cont = true;
@@ -37,10 +36,17 @@ namespace ShopManager
             while (cont);
         }
 
-        private static void PreCheck(DatabaseFacade database)
+        private static void PreCheck()
         {
             Console.WriteLine("Loading...");
-            database.Migrate();
+            using (var db = new ShopContext())
+            {
+                db.Database.Migrate();
+            }
+            CultureInfo currentCulture = Thread.CurrentThread.CurrentCulture;
+            CultureInfo newCulture = new CultureInfo(currentCulture.Name);
+            newCulture.NumberFormat.CurrencyNegativePattern = 1;
+            Thread.CurrentThread.CurrentCulture = newCulture;
         }
 
         private static void Menu()
@@ -48,8 +54,7 @@ namespace ShopManager
             Console.WriteLine("Pick a number for your action");
             Console.WriteLine("1> Items");
             Console.WriteLine("2> Materials");
-            Console.WriteLine("3> Create a quote/invoice");
-            Console.WriteLine("4> Run Profit Margin Analysis");
+            Console.WriteLine("3> Analysis");
             Console.WriteLine("0> Exit");
         }
     }

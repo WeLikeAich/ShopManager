@@ -9,6 +9,7 @@ namespace ShopManager.Entities
         public int MaterialUnitCount { get; set; }
         public Material Material { get; set; }
         public Guid MaterialId { get; set; }
+
         public Guid SizeOptionId { get; set; }
 
         public override string ToString()
