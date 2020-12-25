@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShopManager.Entities;
+using System;
+using System.IO;
 
 namespace ShopManager
 {
@@ -13,7 +15,8 @@ namespace ShopManager
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=shopmanager.db");
+            string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Shop Manager", "shopmanager.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,9 +36,6 @@ namespace ShopManager
                 .WithMany()
                 .HasForeignKey(mc => mc.MaterialId);
 
-            modelBuilder.Entity<Material>()
-                .HasAlternateKey(m => m.FriendlyName)
-                .HasName("AlternateKey_FriendlyName");
             modelBuilder.Entity<Material>()
                 .HasMany(m => m.Colors)
                 .WithOne()

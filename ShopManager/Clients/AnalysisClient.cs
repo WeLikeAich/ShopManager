@@ -13,22 +13,15 @@ namespace ShopManager.Clients
     {
         public void Run()
         {
-            bool cont = true;
-            do
+            CommonClientFunctions.Menuing(MenuOptionsAnalysis(), (actionInput) =>
             {
-                Menu();
-                Int32.TryParse(Console.ReadLine(), out int input);
-                switch (input)
+                switch (actionInput)
                 {
                     case 1:
                         ItemsReport();
                         break;
-
-                    case 0:
-                        cont = false;
-                        break;
                 }
-            } while (cont);
+            });
         }
 
         private void ItemsReport()
@@ -41,7 +34,7 @@ namespace ShopManager.Clients
                 foreach (var sizeOption in item.SizeOptions)
                 {
                     Console.WriteLine($"\tSize Option: {sizeOption.Size} - " +
-                        $"{sizeOption.Price.ToString("C", CultureInfo.CurrentCulture)} - " +
+                        $"Sell Price: {sizeOption.Price.ToString("C", CultureInfo.CurrentCulture)} - " +
                         $"{sizeOption.TimeToMakeInHours} hours");
 
                     //lowest cost materials
@@ -74,12 +67,10 @@ namespace ShopManager.Clients
             }
         }
 
-        private void Menu()
+        private IEnumerable<string> MenuOptionsAnalysis()
         {
-            Console.WriteLine("Pick a number for your action");
-            Console.WriteLine("1> Items Report");
-
-            Console.WriteLine("0> Main Menu");
+            yield return "Items Report";
+            yield return "Main Menu";
         }
     }
 }

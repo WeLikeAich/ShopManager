@@ -10,12 +10,9 @@ namespace ShopManager.Clients
     {
         public void Run()
         {
-            bool cont = true;
-            do
+            CommonClientFunctions.Menuing(MenuOptionsMaterial(), (actionInput) =>
             {
-                Menu();
-                Int32.TryParse(Console.ReadLine(), out int input);
-                switch (input)
+                switch (actionInput)
                 {
                     case 1:
                         CreateMaterial();
@@ -32,23 +29,8 @@ namespace ShopManager.Clients
                     case 4:
                         DeleteMaterial();
                         break;
-
-                    case 0:
-                        cont = false;
-                        break;
                 }
-            } while (cont);
-        }
-
-        private void Menu()
-        {
-            Console.WriteLine("Pick a number for your action");
-            Console.WriteLine("1> Create Material");
-            Console.WriteLine("2> List Materials");
-            Console.WriteLine("3> Update Material");
-            Console.WriteLine("4> Delete Material");
-
-            Console.WriteLine("0> Main Menu");
+            });
         }
 
         private void CreateMaterial()
@@ -56,7 +38,7 @@ namespace ShopManager.Clients
             Console.Write("Enter The Full Material Name (as would be listed in a catalog)> ");
             string newFullName = Console.ReadLine();
 
-            Console.Write("Enter A Short Friendly Name for the material (used > ");
+            Console.Write("Enter A Short Friendly Name for the material> ");
             string newFriendlyName = Console.ReadLine();
 
             List<Color> colors = new List<Color>();
@@ -88,14 +70,17 @@ namespace ShopManager.Clients
 
         private void UpdateMaterials()
         {
-            Console.WriteLine("Pick an Item to Edit");
+            Console.WriteLine("Pick a Material to Edit");
             var materials = CommonClientFunctions.ReadMaterials();
-            CommonClientFunctions.PrintMaterials(materials);
-            Int32.TryParse(Console.ReadLine(), out int input);
+            var hasElements = CommonClientFunctions.EntitySelection(materials, out Material material);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Materials Available");
+                return;
+            }
+            if (material is null)
+                return;
 
-            Material material = materials[input - 1];
-
-            Console.WriteLine("Update Material:");
             Console.Write($"Name ({material.FullMaterialName})> ");
             var newFullMaterialName = Console.ReadLine();
             Console.Write($"Name ({material.FriendlyName})> ");
@@ -109,19 +94,9 @@ namespace ShopManager.Clients
                 new DataService(db).Update(material);
             }
 
-            bool cont = true;
-
-            do
+            CommonClientFunctions.Menuing(MenuOptionsUpdateMaterials(), (actionInput) =>
             {
-                Console.WriteLine();
-                Console.WriteLine("1> Add Color Option");
-                Console.WriteLine("2> Edit Color Option");
-                Console.WriteLine("3> Delete Color Option");
-                Console.WriteLine("0> Back");
-
-                Int32.TryParse(Console.ReadLine(), out input);
-
-                switch (input)
+                switch (actionInput)
                 {
                     case 1:
                         CreateColor(material);
@@ -134,12 +109,8 @@ namespace ShopManager.Clients
                     case 3:
                         DeleteColor(material.Colors);
                         break;
-
-                    case 0:
-                        cont = false;
-                        break;
                 }
-            } while (cont);
+            });
         }
 
         private void CreateColor(Material material)
@@ -155,66 +126,71 @@ namespace ShopManager.Clients
 
         private void DeleteMaterial()
         {
-            Console.WriteLine("Pick an Item to Delete");
+            Console.WriteLine("Pick a Material to Delete");
             var materials = CommonClientFunctions.ReadMaterials();
-            CommonClientFunctions.PrintMaterials(materials);
-            Int32.TryParse(Console.ReadLine(), out int input);
+            var hasElements = CommonClientFunctions.EntitySelection(materials, out Material material);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Materials Available");
+                return;
+            }
+            if (material is null)
+                return;
 
             using (var db = new ShopContext())
             {
-                new DataService(db).Delete(materials[input - 1]);
+                new DataService(db).Delete(material);
             }
         }
 
         private void DeleteColor(List<Color> colors)
         {
-            for (int i = 0; i < colors.Count; i++)
+            var hasElements = CommonClientFunctions.EntitySelection(colors, out Color color, 1);
+            if (!hasElements)
             {
-                Console.WriteLine($"\t{i + 1}){colors[i]}");
-                i++;
+                Console.WriteLine("No Colors Available");
+                return;
             }
-
-            Int32.TryParse(Console.ReadLine(), out int input);
+            if (color is null)
+                return;
             using (var db = new ShopContext())
             {
-                new DataService(db).Delete(colors[input - 1]);
+                new DataService(db).Delete(color);
             }
         }
 
         private void UpdateColors(Material material)
         {
-            int i = 0;
             var colors = material.Colors;
-            foreach (var color in colors)
+
+            var hasElements = CommonClientFunctions.EntitySelection(colors, out Color color, 1);
+            if (!hasElements)
             {
-                Console.WriteLine($"\t{i + 1}) {color}");
-                i++;
+                Console.WriteLine("No Colors Available");
+                return;
             }
+            if (color is null)
+                return;
 
-            int input = -1;
-
-            while (input == -1)
-                Int32.TryParse(Console.ReadLine(), out input);
-            input -= 1;
-            Console.WriteLine($"Name ({colors[input].Name})> ");
+            Console.Write($"Name ({color.Name})> ");
             var newColorName = Console.ReadLine();
 
-            Console.WriteLine($"Color Code ({colors[input].ColorCode})> ");
+            Console.Write($"Color Code ({color.ColorCode})> ");
             var newColorCode = Console.ReadLine();
 
-            Console.WriteLine($"Cost ({colors[input].Cost})> ");
+            Console.Write($"Cost ({color.Cost})> ");
             var pInput = Console.ReadLine();
             if (String.IsNullOrWhiteSpace(pInput))
                 pInput = "-1";
             Int32.TryParse(pInput, out int newCost);
 
-            colors[input].Name = String.IsNullOrWhiteSpace(newColorName) ? colors[input].Name : newColorName;
-            colors[input].ColorCode = String.IsNullOrWhiteSpace(newColorCode) ? colors[input].ColorCode : newColorCode;
-            colors[input].Cost = newCost == -1 ? colors[input].Cost : newCost;
+            color.Name = String.IsNullOrWhiteSpace(newColorName) ? color.Name : newColorName;
+            color.ColorCode = String.IsNullOrWhiteSpace(newColorCode) ? color.ColorCode : newColorCode;
+            color.Cost = newCost == -1 ? color.Cost : newCost;
 
             using (var db = new ShopContext())
             {
-                new DataService(db).Update(colors[input]);
+                new DataService(db).Update(color);
             }
         }
 
@@ -235,6 +211,23 @@ namespace ShopManager.Clients
                 ColorCode = newColorCode,
                 Cost = cost,
             };
+        }
+
+        private IEnumerable<string> MenuOptionsMaterial()
+        {
+            yield return "Create Material";
+            yield return "List Materials";
+            yield return "Update Material";
+            yield return "Delete Material";
+            yield return "Main Menu";
+        }
+
+        private IEnumerable<string> MenuOptionsUpdateMaterials()
+        {
+            yield return "Add Color Option";
+            yield return "Edit Color Option";
+            yield return "Delete Color Option";
+            yield return "Finish";
         }
     }
 }

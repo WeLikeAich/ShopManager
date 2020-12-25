@@ -6,6 +6,7 @@ using ShopManager.Services;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Threading;
 
 namespace ShopManager
@@ -17,23 +18,15 @@ namespace ShopManager
             PreCheck();
 
             Console.WriteLine("Welcome to Shop Manager");
-            bool cont = true;
-            do
+            CommonClientFunctions.Menuing(MainMenuOptions(), (actionInput) =>
             {
-                Menu();
-                Int32.TryParse(Console.ReadLine(), out int input);
-                if (input == 0)
-                {
-                    break;
-                }
-                IClient client = ClientFactory.GenorateClient(input);
+                IClient client = ClientFactory.GenorateClient(actionInput);
 
                 if (client != null)
                 {
                     client.Run();
                 }
-            }
-            while (cont);
+            });
         }
 
         private static void PreCheck()
@@ -49,13 +42,12 @@ namespace ShopManager
             Thread.CurrentThread.CurrentCulture = newCulture;
         }
 
-        private static void Menu()
+        private static IEnumerable<string> MainMenuOptions()
         {
-            Console.WriteLine("Pick a number for your action");
-            Console.WriteLine("1> Items");
-            Console.WriteLine("2> Materials");
-            Console.WriteLine("3> Analysis");
-            Console.WriteLine("0> Exit");
+            yield return "Items";
+            yield return "Materials";
+            yield return "Analysis";
+            yield return "Exit";
         }
     }
 }

@@ -9,15 +9,30 @@ namespace ShopManager.Clients
 {
     internal static class CommonClientFunctions
     {
-        internal static void ListItems() => PrintItems(ReadItems());
-
-        internal static void ListMaterials() => PrintMaterials(ReadMaterials());
-
-        internal static void PrintItems(List<Item> items)
+        internal static void ListItems()
         {
-            for (int i = 1; i <= items.Count; i++)
+            var items = ReadItems();
+            if (items.Count == 0)
+                Console.WriteLine("No Items Available");
+            else
+                PrintEntities(items);
+        }
+
+        internal static void ListMaterials()
+        {
+            var materials = ReadMaterials();
+            if (materials.Count == 0)
+                Console.WriteLine("No Materials Available");
+            else
+                PrintEntities(materials);
+        }
+
+        internal static void PrintEntities<TEntity>(List<TEntity> entities, int tabCount = 0)
+        {
+            string tabs = new string('\t', tabCount);
+            for (int i = 1; i <= entities.Count; i++)
             {
-                Console.WriteLine($"{i}) {items[i - 1]}");
+                Console.WriteLine($"{tabs}{i}) {entities[i - 1]}");
             }
         }
 
@@ -27,39 +42,72 @@ namespace ShopManager.Clients
             return new DataService(db).GetItems();
         }
 
-        internal static void PrintMaterials(List<Material> materials)
-        {
-            for (int i = 1; i <= materials.Count; i++)
-            {
-                Console.WriteLine($"{i}) {materials[i - 1]}");
-            }
-        }
-
         internal static List<Material> ReadMaterials()
         {
             using var db = new ShopContext();
             return new DataService(db).GetMaterials();
         }
 
-        internal static void PrintSizeOption(List<SizeOption> options)
-        {
-            for (int i = 0; i < options.Count; i++)
-            {
-                Console.WriteLine($"\t{i + 1}) {options[i]}");
-            }
-        }
-
-        internal static void PrintMaterialCounts(List<MaterialCount> materialCounts)
-        {
-            for (int i = 0; i < materialCounts.Count; i++)
-            {
-                Console.WriteLine($"\t{i + 1}) {materialCounts[i]}");
-            }
-        }
-
         internal static string ConvertToMoney(decimal amount)
         {
             return amount.ToString("C", CultureInfo.CurrentCulture);
+        }
+
+        internal static void Menuing(IEnumerable<string> menuOptions, Action<int> menuActions)
+        {
+            bool cont = true;
+            do
+            {
+                var exitOption = PrintMenu(menuOptions);
+                Int32.TryParse(Console.ReadLine(), out int input);
+
+                if (input == exitOption)
+                {
+                    cont = false;
+                }
+                else if (input > 0 && input < exitOption)
+                {
+                    menuActions(input);
+                }
+            } while (cont);
+        }
+
+        private static int PrintMenu(IEnumerable<string> options)
+        {
+            Console.WriteLine("\nPick a number for your action");
+            int i = 1;
+            foreach (var option in options)
+            {
+                Console.WriteLine($"{i}> {option}");
+                i++;
+            }
+            return i - 1;
+        }
+
+        internal static bool EntitySelection<TEntity>(List<TEntity> entities, out TEntity entity, int tabCount = 0) where TEntity : Entity
+        {
+            if (entities.Count == 0)
+            {
+                entity = null;
+                return false;
+            }
+            do
+            {
+                CommonClientFunctions.PrintEntities(entities, tabCount);
+                Console.WriteLine($"{entities.Count + 1}) Cancel");
+                var success = Int32.TryParse(Console.ReadLine(), out int input);
+
+                if (input > 0 && input <= entities.Count && success)
+                {
+                    entity = entities[input - 1];
+                    return true;
+                }
+                else if (input == entities.Count + 1)
+                {
+                    entity = null;
+                    return true;
+                }
+            } while (true);
         }
     }
 }

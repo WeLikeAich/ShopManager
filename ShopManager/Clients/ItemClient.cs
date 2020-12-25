@@ -10,12 +10,9 @@ namespace ShopManager.Clients
     {
         public void Run()
         {
-            bool cont = true;
-            do
+            CommonClientFunctions.Menuing(MenuOptionsItem(), (actionInput) =>
             {
-                Menu();
-                Int32.TryParse(Console.ReadLine(), out int input);
-                switch (input)
+                switch (actionInput)
                 {
                     case 1:
                         CreateItem();
@@ -32,26 +29,18 @@ namespace ShopManager.Clients
                     case 4:
                         DeleteItem();
                         break;
-
-                    case 0:
-                        cont = false;
-                        break;
                 }
-            } while (cont);
-        }
-
-        private void Menu()
-        {
-            Console.WriteLine("Pick a number for your action");
-            Console.WriteLine("1> Create an Item");
-            Console.WriteLine("2> List Items");
-            Console.WriteLine("3> Update Item");
-            Console.WriteLine("4> Delete Item");
-            Console.WriteLine("0> Finish");
+            });
         }
 
         private void CreateItem()
         {
+            List<Material> materials = CommonClientFunctions.ReadMaterials();
+            if (materials.Count == 0)
+            {
+                Console.WriteLine("There must be materials created prior to making an item");
+                return;
+            }
             Console.Write("Enter Item Name> ");
             string name = Console.ReadLine();
 
@@ -63,7 +52,10 @@ namespace ShopManager.Clients
             Console.WriteLine("Enter Sizing Information.");
             do
             {
-                sizeOptions.Add(CreateSizeOption());
+                var sizeOption = CreateSizeOption(materials);
+                if (sizeOption is null)
+                    return;
+                sizeOptions.Add(sizeOption);
 
                 Console.Write("Enter another sizing option? (\"yes\" or \"no\")> ");
                 string cont = Console.ReadLine();
@@ -89,11 +81,15 @@ namespace ShopManager.Clients
         {
             Console.WriteLine("Pick an Item to Edit");
             var items = CommonClientFunctions.ReadItems();
-            CommonClientFunctions.PrintItems(items);
-            Int32.TryParse(Console.ReadLine(), out int input);
+            var hasElements = CommonClientFunctions.EntitySelection(items, out Item item);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Items Available");
+                return;
+            }
+            if (item is null)
+                return;
 
-            var item = items[input - 1];
-            Console.WriteLine("Update Item:");
             Console.WriteLine($"Name ({item.Name})> ");
             var newName = Console.ReadLine();
             Console.WriteLine($"Name ({item.Description})> ");
@@ -107,69 +103,74 @@ namespace ShopManager.Clients
                 new DataService(db).Update(item);
             }
 
-            bool cont = true;
-            do
+            CommonClientFunctions.Menuing(MenuOptionsUpdateItemSizeOption(), (actionInput) =>
             {
-                Console.WriteLine("1> Add Sizing Option");
-                Console.WriteLine("2> Edit Sizing Option");
-                Console.WriteLine("3> Delete Sizing Option");
-                Console.WriteLine("0> Finish");
-
-                Int32.TryParse(Console.ReadLine(), out input);
-
-                switch (input)
+                switch (actionInput)
                 {
                     case 1:
                         CreateSizeOption(item);
                         break;
 
                     case 2:
-                        EditSizeOption(item);
+                        UpdateSizeOption(item);
                         break;
 
                     case 3:
                         DeleteSizeOption(item.SizeOptions);
                         break;
-
-                    case 0:
-                        cont = false;
-                        break;
                 }
-            } while (cont);
+            });
         }
 
         private void CreateSizeOption(Item item)
         {
-            var sizeOption = CreateSizeOption();
+            List<Material> materials = CommonClientFunctions.ReadMaterials();
+            var sizeOption = CreateSizeOption(materials);
             sizeOption.ItemId = item.Id;
             item.SizeOptions.Add(sizeOption);
             using var db = new ShopContext();
             new DataService(db).Create(sizeOption);
         }
 
-        public void EditSizeOption(Item item)
+        public void UpdateSizeOption(Item item)
         {
             var options = item.SizeOptions;
-            CommonClientFunctions.PrintSizeOption(options);
-
-            Int32.TryParse(Console.ReadLine(), out int input);
-            input -= 1;
-            var option = options[input];
+            var hasElements = CommonClientFunctions.EntitySelection(options, out SizeOption option, 1);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Size Options Available");
+                return;
+            }
+            if (option is null)
+                return;
 
             Console.WriteLine($"Size ({option.Size})> ");
             var newSize = Console.ReadLine();
 
-            Console.WriteLine($"Price ({option.Price})> ");
-            var pInput = Console.ReadLine();
-            if (String.IsNullOrWhiteSpace(pInput))
-                pInput = "-1";
-            Decimal.TryParse(pInput, out decimal newPrice);
+            decimal newPrice;
+            string priceInput;
+            do
+            {
+                newPrice = -1;
+                Console.WriteLine($"Price ({option.Price})> ");
+                priceInput = Console.ReadLine().Replace("$", "");
 
-            Console.WriteLine($"Time To Make In Hours ({option.TimeToMakeInHours})> ");
-            pInput = Console.ReadLine();
-            if (String.IsNullOrWhiteSpace(pInput))
-                pInput = "-1";
-            Int32.TryParse(pInput, out int newTTM);
+                if (String.IsNullOrWhiteSpace(priceInput))
+                    break;
+                Decimal.TryParse(priceInput, out newPrice);
+            } while (newPrice <= 0);
+
+            int newTTM;
+            string timeInput;
+            do
+            {
+                newTTM = -1;
+                Console.WriteLine($"Time To Make In Hours. Must be Non Zero. ({option.TimeToMakeInHours})> ");
+                timeInput = Console.ReadLine();
+                if (String.IsNullOrWhiteSpace(timeInput))
+                    break;
+                Int32.TryParse(timeInput, out newTTM);
+            } while (newTTM <= 0);
 
             option.Size = String.IsNullOrWhiteSpace(newSize) ? option.Size : newSize;
             option.Price = newPrice == -1 ? option.Price : newPrice;
@@ -180,17 +181,9 @@ namespace ShopManager.Clients
                 new DataService(db).Update(option);
             }
 
-            bool cont = true;
-            do
+            CommonClientFunctions.Menuing(MenuOptionsUpdateSizeOptionMaterialCount(), (actionInput) =>
             {
-                Console.WriteLine("1> Add New Material Count");
-                Console.WriteLine("2> Edit Material Count");
-                Console.WriteLine("3> Delete Material Count");
-                Console.WriteLine("0> Finish");
-
-                Int32.TryParse(Console.ReadLine(), out input);
-
-                switch (input)
+                switch (actionInput)
                 {
                     case 1:
                         CreateMaterialCount(option);
@@ -203,12 +196,8 @@ namespace ShopManager.Clients
                     case 3:
                         DeleteMaterialCount(option.MaterialCounts);
                         break;
-
-                    case 0:
-                        cont = false;
-                        break;
                 }
-            } while (cont);
+            });
         }
 
         private void CreateMaterialCount(SizeOption option)
@@ -216,6 +205,9 @@ namespace ShopManager.Clients
             List<Material> materials = CommonClientFunctions.ReadMaterials();
 
             var materialCount = CreateMaterialCount(materials);
+            if (materialCount is null)
+                return;
+
             materialCount.SizeOptionId = option.Id;
             option.MaterialCounts.Add(materialCount);
             using var db = new ShopContext();
@@ -225,14 +217,17 @@ namespace ShopManager.Clients
         private void EditMaterialCount(SizeOption option)
         {
             var materialCounts = option.MaterialCounts;
-            CommonClientFunctions.PrintMaterialCounts(materialCounts);
 
-            Int32.TryParse(Console.ReadLine(), out int input);
-            input -= 1;
+            var hasElements = CommonClientFunctions.EntitySelection(materialCounts, out MaterialCount materialCount, 1);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Material Counts Available");
+                return;
+            }
+            if (materialCount is null)
+                return;
 
-            var materialCount = materialCounts[input];
-
-            Console.WriteLine($"Cost ({materialCount.MaterialUnitCount})> ");
+            Console.WriteLine($"Count ({materialCount.MaterialUnitCount})> ");
             var pInput = Console.ReadLine();
             if (String.IsNullOrWhiteSpace(pInput))
                 pInput = "-1";
@@ -248,31 +243,35 @@ namespace ShopManager.Clients
 
         private void DeleteMaterialCount(List<MaterialCount> materialCounts)
         {
-            CommonClientFunctions.PrintMaterialCounts(materialCounts);
-            Console.WriteLine($"\t{0}) Cancel");
-
-            Int32.TryParse(Console.ReadLine(), out int input);
-
-            if (input == 0)
+            var hasElements = CommonClientFunctions.EntitySelection(materialCounts, out MaterialCount materialCount, 1);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Material Counts Available");
                 return;
+            }
+            if (materialCount is null)
+                return;
+
             using (var db = new ShopContext())
             {
-                new DataService(db).Delete(materialCounts[input - 1]);
+                new DataService(db).Delete(materialCount);
             }
         }
 
-        private void DeleteSizeOption(List<SizeOption> sizeOptions)
+        private void DeleteSizeOption(List<SizeOption> options)
         {
-            CommonClientFunctions.PrintSizeOption(sizeOptions);
-            Console.WriteLine($"\t{0}) Cancel");
-
-            Int32.TryParse(Console.ReadLine(), out int input);
-
-            if (input == 0)
+            var hasElements = CommonClientFunctions.EntitySelection(options, out SizeOption option, 1);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Size Options Available");
                 return;
+            }
+            if (option is null)
+                return;
+
             using (var db = new ShopContext())
             {
-                new DataService(db).Delete(sizeOptions[input - 1]);
+                new DataService(db).Delete(option);
             }
         }
 
@@ -280,31 +279,50 @@ namespace ShopManager.Clients
         {
             Console.WriteLine("Pick an Item to Delete");
             var items = CommonClientFunctions.ReadItems();
-            CommonClientFunctions.PrintItems(items);
-            Int32.TryParse(Console.ReadLine(), out int input);
+
+            var hasElements = CommonClientFunctions.EntitySelection(items, out Item item);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Items Available");
+                return;
+            }
+            if (item is null)
+                return;
 
             using (var db = new ShopContext())
             {
-                new DataService(db).Delete(items[input - 1]);
+                new DataService(db).Delete(item);
             }
         }
 
-        private SizeOption CreateSizeOption()
+        private SizeOption CreateSizeOption(List<Material> materials)
         {
-            Console.Write("Enter Sizing (Dimensions: 18\"x24\") or (Size: Medium)> ");
+            Console.Write("Enter Sizing (Dimensions: \"18x24\") or (Size: \"Medium\")> ");
             string size = Console.ReadLine();
 
-            Console.Write("Enter Sizing Price without the \"$\"> ");
-            Decimal.TryParse(Console.ReadLine(), out decimal price);
-
-            Console.Write("Enter Time To Make rounded up to the nearest hour (2 hours and 15 minutes is \"3\" hours)> ");
-            Int32.TryParse(Console.ReadLine(), out int time);
-
-            List<MaterialCount> materialCounts = new List<MaterialCount>();
-            List<Material> materials = CommonClientFunctions.ReadMaterials();
+            decimal price;
+            string priceInput;
             do
             {
-                materialCounts.Add(CreateMaterialCount(materials));
+                Console.Write("Enter Sizing Price> ");
+                priceInput = Console.ReadLine().Replace("$", "");
+                Decimal.TryParse(priceInput, out price);
+            } while (price <= 0);
+
+            int time;
+            do
+            {
+                Console.Write("Enter Time To Make rounded up to the nearest non zero hour (2 hours and 15 minutes is \"3\" hours)> ");
+                Int32.TryParse(Console.ReadLine(), out time);
+            } while (time <= 0);
+
+            List<MaterialCount> materialCounts = new List<MaterialCount>();
+            do
+            {
+                var materialCount = CreateMaterialCount(materials);
+                if (materialCount is null)
+                    return null;
+                materialCounts.Add(materialCount);
 
                 Console.Write("Enter another material count? (\"yes\" or \"no\")> ");
                 string cont = Console.ReadLine();
@@ -325,18 +343,51 @@ namespace ShopManager.Clients
         private MaterialCount CreateMaterialCount(List<Material> materials)
         {
             Console.WriteLine("Pick a material> ");
-            CommonClientFunctions.PrintMaterials(materials);
-            Int32.TryParse(Console.ReadLine(), out int input);
+            var hasElements = CommonClientFunctions.EntitySelection(materials, out Material material);
+            if (!hasElements)
+            {
+                Console.WriteLine("No Items Available");
+                return null;
+            }
+            if (material is null)
+                return null;
 
-            Material material = materials[input - 1];
-            Console.Write("Enter the number of units of material needed as a whole number> ");
-            Int32.TryParse(Console.ReadLine(), out int newUnitCount);
-
+            int newUnitCount;
+            do
+            {
+                Console.Write("Enter the number of units of material needed as a whole number> ");
+                Int32.TryParse(Console.ReadLine(), out newUnitCount);
+            } while (newUnitCount <= 0);
             return new MaterialCount()
             {
                 MaterialId = material.Id,
                 MaterialUnitCount = newUnitCount
             };
+        }
+
+        private IEnumerable<string> MenuOptionsItem()
+        {
+            yield return "Create an Item";
+            yield return "List Items";
+            yield return "Update Items";
+            yield return "Delete Items";
+            yield return "Main Menu";
+        }
+
+        private IEnumerable<string> MenuOptionsUpdateItemSizeOption()
+        {
+            yield return "Add Sizing Option";
+            yield return "Edit Sizing Option";
+            yield return "Delete Sizing Option";
+            yield return "Finish";
+        }
+
+        private IEnumerable<string> MenuOptionsUpdateSizeOptionMaterialCount()
+        {
+            yield return "Add New Material Count";
+            yield return "Edit Material Count";
+            yield return "Delete Material Count";
+            yield return "Finish";
         }
     }
 }

@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopManager", "ShopManager\ShopManager.csproj", "{9C1A4FBA-D2E3-4C97-9A15-62CFB0539851}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShopManager", "ShopManager\ShopManager.csproj", "{9C1A4FBA-D2E3-4C97-9A15-62CFB0539851}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ShopManagerInstaller", "ShopManagerInstaller\ShopManagerInstaller.vdproj", "{8BE8AA7A-CEBD-4CEA-B85B-AF3021651B91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9C1A4FBA-D2E3-4C97-9A15-62CFB0539851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C1A4FBA-D2E3-4C97-9A15-62CFB0539851}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C1A4FBA-D2E3-4C97-9A15-62CFB0539851}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{9C1A4FBA-D2E3-4C97-9A15-62CFB0539851}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{9C1A4FBA-D2E3-4C97-9A15-62CFB0539851}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C1A4FBA-D2E3-4C97-9A15-62CFB0539851}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BE8AA7A-CEBD-4CEA-B85B-AF3021651B91}.Debug|Any CPU.ActiveCfg = Release
+		{8BE8AA7A-CEBD-4CEA-B85B-AF3021651B91}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
