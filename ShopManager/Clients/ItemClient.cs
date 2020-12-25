@@ -116,7 +116,7 @@ namespace ShopManager.Clients
                         break;
 
                     case 3:
-                        DeleteSizeOption(item.SizeOptions);
+                        DeleteSizeOption(item);
                         break;
                 }
             });
@@ -194,7 +194,7 @@ namespace ShopManager.Clients
                         break;
 
                     case 3:
-                        DeleteMaterialCount(option.MaterialCounts);
+                        DeleteMaterialCount(option);
                         break;
                 }
             });
@@ -241,8 +241,9 @@ namespace ShopManager.Clients
             }
         }
 
-        private void DeleteMaterialCount(List<MaterialCount> materialCounts)
+        private void DeleteMaterialCount(SizeOption option)
         {
+            var materialCounts = CommonClientFunctions.ReadMaterialCountsBySizeOptionId(option.Id);
             var hasElements = CommonClientFunctions.EntitySelection(materialCounts, out MaterialCount materialCount, 1);
             if (!hasElements)
             {
@@ -258,8 +259,9 @@ namespace ShopManager.Clients
             }
         }
 
-        private void DeleteSizeOption(List<SizeOption> options)
+        private void DeleteSizeOption(Item item)
         {
+            var options = CommonClientFunctions.ReadSizeOptionsByItemId(item.Id);
             var hasElements = CommonClientFunctions.EntitySelection(options, out SizeOption option, 1);
             if (!hasElements)
             {

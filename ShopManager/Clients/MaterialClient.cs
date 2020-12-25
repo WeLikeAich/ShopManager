@@ -107,7 +107,7 @@ namespace ShopManager.Clients
                         break;
 
                     case 3:
-                        DeleteColor(material.Colors);
+                        DeleteColor(material);
                         break;
                 }
             });
@@ -143,8 +143,9 @@ namespace ShopManager.Clients
             }
         }
 
-        private void DeleteColor(List<Color> colors)
+        private void DeleteColor(Material material)
         {
+            var colors = CommonClientFunctions.ReadColorsByMaterialId(material.Id);
             var hasElements = CommonClientFunctions.EntitySelection(colors, out Color color, 1);
             if (!hasElements)
             {

@@ -41,6 +41,11 @@ namespace ShopManager.Services
             return _db.Materials.Include(m => m.Colors).FirstOrDefault(m => m.Id == id);
         }
 
+        public List<Color> GetColorsByMaterialId(Guid id)
+        {
+            return _db.Colors.Where(c => c.MaterialId == id).ToList();
+        }
+
         public void Delete<TType>(TType entity)
         {
             if (_db.Entry(entity).State == EntityState.Detached)
@@ -56,6 +61,16 @@ namespace ShopManager.Services
             _db.Attach(entity);
             _db.Entry(entity).State = EntityState.Modified;
             _db.SaveChanges();
+        }
+
+        internal List<SizeOption> GetSizeOptionsByItemId(Guid id)
+        {
+            return _db.SizeOptions.Where(so => so.ItemId == id).Include(so => so.MaterialCounts).ThenInclude(mc => mc.Material).ToList();
+        }
+
+        internal List<MaterialCount> GetMaterialCountsBySizeOptionId(Guid id)
+        {
+            return _db.MaterialCounts.Where(mc => mc.SizeOptionId == id).Include(mc => mc.Material).ToList();
         }
     }
 }

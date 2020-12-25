@@ -48,6 +48,12 @@ namespace ShopManager.Clients
             return new DataService(db).GetMaterials();
         }
 
+        internal static List<Color> ReadColorsByMaterialId(Guid id)
+        {
+            using var db = new ShopContext();
+            return new DataService(db).GetColorsByMaterialId(id);
+        }
+
         internal static string ConvertToMoney(decimal amount)
         {
             return amount.ToString("C", CultureInfo.CurrentCulture);
@@ -108,6 +114,18 @@ namespace ShopManager.Clients
                     return true;
                 }
             } while (true);
+        }
+
+        internal static List<SizeOption> ReadSizeOptionsByItemId(Guid id)
+        {
+            using var db = new ShopContext();
+            return new DataService(db).GetSizeOptionsByItemId(id);
+        }
+
+        internal static List<MaterialCount> ReadMaterialCountsBySizeOptionId(Guid id)
+        {
+            using var db = new ShopContext();
+            return new DataService(db).GetMaterialCountsBySizeOptionId(id);
         }
     }
 }
