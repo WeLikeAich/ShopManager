@@ -42,13 +42,19 @@ namespace ShopManager.Clients
                     var maxMaterialCost = new List<Tuple<int, decimal>>();
                     var avgMaterialCost = new List<Tuple<int, decimal>>();
 
+                    bool hasMaterialColors = false;
                     foreach (var materialCount in sizeOption.MaterialCounts)
                     {
                         var materialColorCosts = materialCount.Material.Colors.Select(c => c.Cost);
+                        if (materialColorCosts.Count() == 0)
+                            continue;
+                        hasMaterialColors = true;
                         minMaterialCost.Add(new Tuple<int, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Min()));
                         maxMaterialCost.Add(new Tuple<int, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Max()));
                         avgMaterialCost.Add(new Tuple<int, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Average()));
                     }
+                    if (!hasMaterialColors)
+                        continue;
                     var anserv = new AnalysisService();
 
                     var highestProfit = anserv.CalculateProfit(sizeOption, minMaterialCost);

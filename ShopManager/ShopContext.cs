@@ -34,7 +34,8 @@ namespace ShopManager
             modelBuilder.Entity<MaterialCount>()
                 .HasOne(mc => mc.Material)
                 .WithMany()
-                .HasForeignKey(mc => mc.MaterialId);
+                .HasForeignKey(mc => mc.MaterialId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Material>()
                 .HasMany(m => m.Colors)

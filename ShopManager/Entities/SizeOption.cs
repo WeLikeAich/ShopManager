@@ -27,7 +27,7 @@ namespace ShopManager.Entities
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine($"Size: {Size} - Price: ${Price.ToString("C", CultureInfo.CurrentCulture)} - Turnaround Time: {TimeToMakeInHours}h");
+            sb.AppendLine($"Size: {Size} - Price: {Price.ToString("C", CultureInfo.CurrentCulture)} - Turnaround Time: {TimeToMakeInHours}h");
             foreach (MaterialCount materialCount in MaterialCounts)
             {
                 sb.AppendLine($"\t\t\t{materialCount}");

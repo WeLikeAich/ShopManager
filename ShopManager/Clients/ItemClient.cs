@@ -346,7 +346,7 @@ namespace ShopManager.Clients
             var hasElements = CommonClientFunctions.EntitySelection(materials, out Material material);
             if (!hasElements)
             {
-                Console.WriteLine("No Items Available");
+                Console.WriteLine("No Materials Available");
                 return null;
             }
             if (material is null)
