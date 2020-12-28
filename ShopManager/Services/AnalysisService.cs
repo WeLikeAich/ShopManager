@@ -20,7 +20,7 @@ namespace ShopManager.Services
             _db = db;
         }
 
-        public decimal CalculateCost(List<Tuple<int, decimal>> count)
+        public decimal CalculateCost(List<Tuple<decimal, decimal>> count)
         {
             decimal revenue = 0;
             foreach (var tuple in count)
@@ -31,7 +31,7 @@ namespace ShopManager.Services
             return revenue;
         }
 
-        public decimal CalculateProfit(SizeOption sizeOption, List<Tuple<int, decimal>> count)
+        public decimal CalculateProfit(SizeOption sizeOption, List<Tuple<decimal, decimal>> count)
         {
             return sizeOption.Price - CalculateCost(count);
         }

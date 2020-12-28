@@ -2,7 +2,6 @@
 using ShopManager.Services;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ShopManager.Clients
 {
@@ -90,9 +89,9 @@ namespace ShopManager.Clients
             if (item is null)
                 return;
 
-            Console.WriteLine($"Name ({item.Name})> ");
+            Console.Write($"Name ({item.Name})> ");
             var newName = Console.ReadLine();
-            Console.WriteLine($"Name ({item.Description})> ");
+            Console.Write($"Name ({item.Description})> ");
             var newDescription = Console.ReadLine();
 
             item.Name = String.IsNullOrWhiteSpace(newName) ? item.Name : newName;
@@ -144,7 +143,7 @@ namespace ShopManager.Clients
             if (option is null)
                 return;
 
-            Console.WriteLine($"Size ({option.Size})> ");
+            Console.Write($"Size ({option.Size})> ");
             var newSize = Console.ReadLine();
 
             decimal newPrice;
@@ -152,7 +151,7 @@ namespace ShopManager.Clients
             do
             {
                 newPrice = -1;
-                Console.WriteLine($"Price ({option.Price})> ");
+                Console.Write($"Price ({option.Price})> ");
                 priceInput = Console.ReadLine().Replace("$", "");
 
                 if (String.IsNullOrWhiteSpace(priceInput))
@@ -165,7 +164,7 @@ namespace ShopManager.Clients
             do
             {
                 newTTM = -1;
-                Console.WriteLine($"Time To Make In Hours. Must be Non Zero. ({option.TimeToMakeInHours})> ");
+                Console.Write($"Time To Make In Hours. Must be Non Zero. ({option.TimeToMakeInHours})> ");
                 timeInput = Console.ReadLine();
                 if (String.IsNullOrWhiteSpace(timeInput))
                     break;
@@ -227,13 +226,17 @@ namespace ShopManager.Clients
             if (materialCount is null)
                 return;
 
-            Console.WriteLine($"Count ({materialCount.MaterialUnitCount})> ");
+            Console.Write($"Description ({materialCount.Description})> ");
+            string newDescription = Console.ReadLine();
+
+            Console.Write($"Count ({materialCount.MaterialUnitCount})> ");
             var pInput = Console.ReadLine();
             if (String.IsNullOrWhiteSpace(pInput))
                 pInput = "-1";
-            Int32.TryParse(pInput, out int newCount);
+            Decimal.TryParse(pInput, out decimal newCount);
 
             materialCount.MaterialUnitCount = newCount == -1 ? materialCount.MaterialUnitCount : newCount;
+            materialCount.Description = String.IsNullOrWhiteSpace(newDescription) ? materialCount.Description : newDescription;
 
             using (var db = new ShopContext())
             {
@@ -354,16 +357,21 @@ namespace ShopManager.Clients
             if (material is null)
                 return null;
 
-            int newUnitCount;
+            Console.Write("Enter a description (Optional)> ");
+            string newDescription = Console.ReadLine();
+
+            decimal newUnitCount;
             do
             {
                 Console.Write("Enter the number of units of material needed as a whole number> ");
-                Int32.TryParse(Console.ReadLine(), out newUnitCount);
+                Decimal.TryParse(Console.ReadLine(), out newUnitCount);
             } while (newUnitCount <= 0);
+
             return new MaterialCount()
             {
                 MaterialId = material.Id,
-                MaterialUnitCount = newUnitCount
+                MaterialUnitCount = newUnitCount,
+                Description = newDescription
             };
         }
 

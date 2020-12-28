@@ -38,9 +38,9 @@ namespace ShopManager.Clients
                         $"{sizeOption.TimeToMakeInHours} hours");
 
                     //lowest cost materials
-                    var minMaterialCost = new List<Tuple<int, decimal>>();
-                    var maxMaterialCost = new List<Tuple<int, decimal>>();
-                    var avgMaterialCost = new List<Tuple<int, decimal>>();
+                    var minMaterialCost = new List<Tuple<decimal, decimal>>();
+                    var maxMaterialCost = new List<Tuple<decimal, decimal>>();
+                    var avgMaterialCost = new List<Tuple<decimal, decimal>>();
 
                     bool hasMaterialColors = false;
                     foreach (var materialCount in sizeOption.MaterialCounts)
@@ -49,9 +49,9 @@ namespace ShopManager.Clients
                         if (materialColorCosts.Count() == 0)
                             continue;
                         hasMaterialColors = true;
-                        minMaterialCost.Add(new Tuple<int, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Min()));
-                        maxMaterialCost.Add(new Tuple<int, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Max()));
-                        avgMaterialCost.Add(new Tuple<int, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Average()));
+                        minMaterialCost.Add(new Tuple<decimal, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Min()));
+                        maxMaterialCost.Add(new Tuple<decimal, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Max()));
+                        avgMaterialCost.Add(new Tuple<decimal, decimal>(materialCount.MaterialUnitCount, materialColorCosts.Average()));
                     }
                     if (!hasMaterialColors)
                         continue;
